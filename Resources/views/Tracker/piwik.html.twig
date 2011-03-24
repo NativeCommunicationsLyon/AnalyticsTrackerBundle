@@ -1,0 +1,11 @@
+<!-- Piwik --> 
+<script type="text/javascript">
+document.write(unescape("%3Cscript src='{{ url }}piwik.js' type='text/javascript'%3E%3C/script%3E"));
+</script><script type="text/javascript">
+try {
+var {{ name }}PiwikTracker = Piwik.getTracker('{{ url }}piwik.php', {{ site_id }});
+{{ name }}PiwikTracker.trackPageView();
+{{ name }}PiwikTracker.enableLinkTracking();
+} catch( err ) {}
+</script><noscript><p><img src="{{ url }}piwik.php?idsite={{ site_id }}" style="border:0" alt="" /></p></noscript>
+<!-- End Piwik Tracking Code -->
