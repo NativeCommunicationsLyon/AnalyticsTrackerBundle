@@ -1,14 +1,14 @@
-PiwikBundle
-===========
+AnalyticsTrackerBundle
+======================
 
-Automatically adds a piwik tracker to your Symfony2 website.
+Automatically adds analytics trackers to your Symfony2 website.
 
 Installation
 ------------
 
 First, you need to add the bundle in your project:
 
-    $ git add submodule git://github.com/jirafe/PiwikBundle.git vendor/bundles/Jirafe/Bundle/PiwikBundle
+    $ git add submodule git://github.com/jirafe/AnalyticsTrackerBundle.git vendor/bundles/Jirafe/Bundle/AnalyticsTrackerBundle
 
 Then, add it to the autoloader:
 
@@ -18,7 +18,6 @@ Then, add it to the autoloader:
         // ... other namespaces
 
         'Jirafe'                         => __DIR__ . '/../src',
-        'Mailchimp'                      => __DIR__ . '/../vendor/mailchimp/src',
     ));
 
 Add the bundle to your kernel:
@@ -29,13 +28,22 @@ Add the bundle to your kernel:
         
         // ... other bundles
 
-        new Jirafe\Bundle\PiwikBundle\JirafePiwikBundle(),
+        new Jirafe\Bundle\AnalyticsTrackerBundle\JirafeAnalyticsTrackerBundle(),
     );
 
 Finally, configure it:
 
     # app/config/config.yml
-    # Piwik Configuration
-    jirafe_piwik_tracker:
-        url:        'http://demo.piwik.org' # url of the piwik application
-        site_id:    123                     # id of the site to track
+    # Analytics Tracker Configuration
+    jirafe_analytics_tracker:
+        trackers:
+            tracker_a:
+                type:       piwik
+                url:        'http://demo.piwik.org' # url of the piwik application
+                site_id:    123                     # id of the site to track
+            tracker_b:
+                type:       google_analytics
+                account:    GA-XXXXXXXX             # the GA account
+            tracker_c:
+                type:       jirafe
+                site_id:    123                     # id of the site to track
