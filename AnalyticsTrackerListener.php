@@ -11,6 +11,11 @@
 
 namespace Jirafe\Bundle\AnalyticsTrackerBundle;
 
+use Symfony\Component\HttpKernel\HttpKernelInterface;
+use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Bundle\TwigBundle\TwigEngine;
+
 /**
  * Listener an analytics tracker to the response
  *
@@ -22,7 +27,7 @@ namespace Jirafe\Bundle\AnalyticsTrackerBundle;
 class AnalyticsTrackerListener
 {
     protected $templating;
-    protected $template
+    protected $template;
     protected $params;
 
     /**
@@ -36,7 +41,7 @@ class AnalyticsTrackerListener
     {
         $this->templating  = $templating;
         $this->template    = $template;
-        $this->params      = $param;
+        $this->params      = $params;
     }
 
     /**
@@ -114,8 +119,8 @@ class AnalyticsTrackerListener
 
         $pos = $posrFunction($content, '</body>');
         if (false !== $pos) {
-            $toolbar = $this->template->render($this->template, $this->params);
-            $toolbar = "\n" . str_replace("\n", '', $toolbar);
+            $toolbar = $this->templating->render($this->template, $this->params);
+            $toolbar = "\n" . str_replace("\n", '', $toolbar) . "\n";
 
             $content = $substrFunction($content, 0, $pos).$toolbar.$substrFunction($content, $pos);
             $response->setContent($content);

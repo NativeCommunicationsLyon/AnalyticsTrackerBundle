@@ -39,11 +39,14 @@ Finally, configure it:
         trackers:
             tracker_a:
                 type:       piwik
-                url:        'http://demo.piwik.org' # url of the piwik application
-                site_id:    123                     # id of the site to track
+                params:
+                    url:        'http://demo.piwik.org' # url of the piwik application
+                    site_id:    123                     # id of the site to track
             tracker_b:
                 type:       google_analytics
-                account:    GA-XXXXXXXX             # the GA account
+                params:
+                    account:    GA-XXXXXXXX             # the GA account
             tracker_c:
                 type:       jirafe
-                site_id:    123                     # id of the site to track
+                params:
+                    site_id:    123                     # id of the site to track

@@ -8,9 +8,11 @@
  * file that was distributed with this source code.
  */
 
-namespace Jirafe\Bundle\PiwikBundle\DependencyInjection;
+namespace Jirafe\Bundle\AnalyticsTrackerBundle\DependencyInjection;
 
-use Symfony\Component\DependencyInjection\Extension\Extension;
+use Symfony\Component\HttpKernel\DependencyInjection\Extension;
+use Symfony\Component\DependencyInjection\Definition;
+use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\Validator\Constraints\Url;
@@ -18,53 +20,53 @@ use Symfony\Component\Validator\Constraints\UrlValidator;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Definition\Processor;
 
-class JirafePiwikExtension extends Extension
+class JirafeAnalyticsTrackerExtension extends Extension
 {
     /**
      * {@inheritDoc}
      */
-    public function load(array $configs, ContainerBuilder $builder)
+    public function load(array $configs, ContainerBuilder $container)
     {
         $configuration = new Configuration();
         $processor = new Processor();
-        $config = $processor->process($configuration->getConfigTree($container->getParameter('kernel.debug')), $configs);
+        $config = $processor->process($configuration->getConfigTree(), $configs);
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('analytics_tracker.xml');
 
-        foreach ($config['trackers'] as $tracker) {
-            $this->loadTracker($tracker);
+        foreach ($config['trackers'] as $name => $tracker) {
+            $this->loadTracker($name, $tracker, $container);
         }
     }
 
-    public function loadTracker(array $tracker, ContainerBuilder $builder)
+    public function loadTracker($name, array $tracker, ContainerBuilder $container)
     {
         switch ($tracker['type']) {
             case 'piwik':
                 $this->loadPiwikTracker(
-                    $tracker['name'],
+                    $name,
                     $tracker['class'],
                     $tracker['template'],
                     $tracker['params'],
-                    $builder
+                    $container
                 );
                 break;
             case 'google_analytics':
                 $this->loadGoogleAnalyticsTracker(
-                    $tracker['name'],
+                    $name,
                     $tracker['class'],
                     $tracker['template'],
                     $tracker['params'],
-                    $builder
+                    $container
                 );
                 break;
             case 'jirafe':
                 $this->loadJirafeTracker(
-                    $tracker['name'],
+                    $name,
                     $tracker['class'],
                     $tracker['template'],
                     $tracker['params'],
-                    $builder
+                    $container
                 );
                 break;
             default:
@@ -72,40 +74,35 @@ class JirafePiwikExtension extends Extension
         }
     }
 
-    public function loadPiwikTracker($name, $class, $template, array $params, ContainerBuilder $builder)
+    public function loadPiwikTracker($name, $class, $template, array $params, ContainerBuilder $container)
     {
-        $this->ensureParameters($name, array('url', 'token', 'site_id'), $params);
+        $this->ensureParameters($name, array('url', 'site_id'), $params);
 
-        if (!$this->isUrlValid($params['url']) {
+        if (!$this->isUrlValid($params['url'])) {
             throw new \Exception(sprintf('The specified url \'%s\' is not valid for the \'%s\' tracker.', $name));
         }
 
-        $class = $class ? : $builder->getParameter('%jirafe.analytics_tracker.listener.class%');
-        $template = $template ? : $builder->getParameter('%jirafe.analytics_tracker.piwik.template%');
+        $class = $class ? : $container->getParameter('jirafe.analytics_tracker.class');
+        $template = $template ? : $container->getParameter('jirafe.analytics_tracker.piwik.template');
 
-        $this->addTrackerDefinition($name, $class, $template, $params, $builder);
+        $this->addTrackerDefinition($name, $class, $template, $params, $container);
     }
 
-    public function loadGoogleAnalyticsTracker($name, $class, $template, array $params, ContainerBuilder $builder)
+    public function loadGoogleAnalyticsTracker($name, $class, $template, array $params, ContainerBuilder $container)
     {
         $this->ensureParameters($name, array('account'), $params);
 
-        $class = $class ? : $builder->getParameter('%jirafe.analytics_tracker.listener.class%');
-        $template = $template ? : $builder->getParameter('%jirafe.analytics_tracker.google_analytics.template%');
+        $class = $class ? : $container->getParameter('jirafe.analytics_tracker.class');
+        $template = $template ? : $container->getParameter('jirafe.analytics_tracker.google_analytics.template');
 
-        $this->addTrackerDefinition($name, $class, $template, $params, $builder);
+        $this->addTrackerDefinition($name, $class, $template, $params, $container);
     }
 
-    public function loadJirafeTracker($name, $class, $template, array $params, ContainerBuilder $builder)
+    public function loadJirafeTracker($name, $class, $template, array $params, ContainerBuilder $container)
     {
-        $this->ensureParameters($name, array('token', 'site_id'), $params);
+        $params['url'] = $container->getParameter('jirafe.analytics_tracker.jirafe.url');
 
-        $class = $class ? : $builder->getParameter('%jirafe.analytics_tracker.listener.class%');
-        $template = $template ? : $builder->getParameter('%jirafe.analytics_tracker.piwik.template%');
-
-        $params['url'] = $builder->getParameter('%jirafe.analytics_tracker.jirafe.url%');
-
-        $this->addTrackerDefinition($name, $class, $template, $params, $builder);
+        $this->loadPiwikTracker($name, $class, $template, $params, $container);
     }
 
     /**
@@ -115,15 +112,21 @@ class JirafePiwikExtension extends Extension
      * @param  string           $class     The listener class
      * @param  string           $template  The template of the tracker
      * @param  array            $params    The parameters for the template
-     * @param  ContainerBuilder $builder   A ContainerBuilder instance
+     * @param  ContainerBuilder $container A ContainerBuilder instance
      */
-    protected function setTrackerDefinition($name, $class, $template, $params ContainerBuilder $builder)
+    protected function addTrackerDefinition($name, $class, $template, $params, ContainerBuilder $container)
     {
         $params['name'] = $name;
 
-        $builder->setDefinition(
+        $templating = new Reference('templating.engine.twig');
+        $definition = new Definition($class, array($templating, $template, $params));
+        $definition->addTag('kernel.listener', array(
+            'event' => 'onCoreResponse'
+        ));
+
+        $container->setDefinition(
             sprintf('jirafe.analytics_tracker.%s_tracker', $name),
-            new Definition($class, array($name, $template, $params))
+            $definition
         );
     }
 
@@ -136,7 +139,7 @@ class JirafePiwikExtension extends Extension
      *
      * @throws Exception if any param is not filled
      */
-    protected function ensureParameters($trackerName, array $keys, array $params)
+    protected function ensureParameters($name, array $keys, array $params)
     {
         foreach ($keys as $key) {
             if (empty($params[$key])) {

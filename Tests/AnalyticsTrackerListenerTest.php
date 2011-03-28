@@ -13,7 +13,7 @@ class AnalyticsTrackerListenerTest extends \PHPUnit_Framework_TestCase
      */
     public function testInjectTracker($content, $expected)
     {
-        $listener = new AnalyticsTrackerBundle($this->getTemplatingMock());
+        $listener = new AnalyticsTrackerListener($this->getTemplatingMock(), '');
         $m = new \ReflectionMethod($listener, 'injectTracker');
         $m->setAccessible(true);
 
@@ -44,14 +44,13 @@ class AnalyticsTrackerListenerTest extends \PHPUnit_Framework_TestCase
     public function testTrackerIsInjected()
     {
         $response = new Response('<html><head></head><body></body></html>');
-        $response->headers->set('X-Debug-Token', 'xxxxxxxx');
 
         $event = new FilterResponseEvent($this->getKernelMock(), $this->getRequestMock(), HttpKernelInterface::MASTER_REQUEST, $response);
 
-        $listener = new AnalyticsTrackerListener($this->getTemplatingMock());
+        $listener = new AnalyticsTrackerListener($this->getTemplatingMock(), '');
         $listener->onCoreResponse($event);
 
-        $this->assertEquals("<html><head></head><body>\nWDT\n</body></html>", $response->getContent());
+        $this->assertEquals("<html><head></head><body>\nTRACKER\n</body></html>", $response->getContent());
     }
 
     /**
@@ -61,10 +60,9 @@ class AnalyticsTrackerListenerTest extends \PHPUnit_Framework_TestCase
     {
         foreach (array(301, 302) as $statusCode) {
             $response = new Response('<html><head></head><body></body></html>', $statusCode);
-            $response->headers->set('X-Debug-Token', 'xxxxxxxx');
             $event = new FilterResponseEvent($this->getKernelMock(), $this->getRequestMock(), HttpKernelInterface::MASTER_REQUEST, $response);
 
-            $listener = new AnalyticsTrackerListener($this->getTemplatingMock());
+            $listener = new AnalyticsTrackerListener($this->getTemplatingMock(), '');
             $listener->onCoreResponse($event);
 
             $this->assertEquals('<html><head></head><body></body></html>', $response->getContent());
@@ -74,29 +72,13 @@ class AnalyticsTrackerListenerTest extends \PHPUnit_Framework_TestCase
     /**
      * @depends testTrackerIsInjected
      */
-    public function testTrackerIsNotInjectedWhenThereIsNoNoXDebugTokenResponseHeader()
-    {
-        $response = new Response('<html><head></head><body></body></html>');
-
-        $event = new FilterResponseEvent($this->getKernelMock(), $this->getRequestMock(), HttpKernelInterface::MASTER_REQUEST, $response);
-
-        $listener = new AnalyticsTrackerListener($this->getTemplatingMock());
-        $listener->onCoreResponse($event);
-
-        $this->assertEquals('<html><head></head><body></body></html>', $response->getContent());
-    }
-
-    /**
-     * @depends testTrackerIsInjected
-     */
     public function testTrackerIsNotInjectedWhenOnSubRequest()
     {
         $response = new Response('<html><head></head><body></body></html>');
-        $response->headers->set('X-Debug-Token', 'xxxxxxxx');
 
         $event = new FilterResponseEvent($this->getKernelMock(), $this->getRequestMock(), HttpKernelInterface::SUB_REQUEST, $response);
 
-        $listener = new AnalyticsTrackerListener($this->getTemplatingMock());
+        $listener = new AnalyticsTrackerListener($this->getTemplatingMock(), '');
         $listener->onCoreResponse($event);
 
         $this->assertEquals('<html><head></head><body></body></html>', $response->getContent());
@@ -108,11 +90,10 @@ class AnalyticsTrackerListenerTest extends \PHPUnit_Framework_TestCase
     public function testTrackerIsNotInjectedOnUncompleteHtmlResponses()
     {
         $response = new Response('<div>Some content</div>');
-        $response->headers->set('X-Debug-Token', 'xxxxxxxx');
 
         $event = new FilterResponseEvent($this->getKernelMock(), $this->getRequestMock(), HttpKernelInterface::MASTER_REQUEST, $response);
 
-        $listener = new AnalyticsTrackerListener($this->getTemplatingMock());
+        $listener = new AnalyticsTrackerListener($this->getTemplatingMock(), '');
         $listener->onCoreResponse($event);
 
         $this->assertEquals('<div>Some content</div>', $response->getContent());
@@ -124,11 +105,10 @@ class AnalyticsTrackerListenerTest extends \PHPUnit_Framework_TestCase
     public function testTrackerIsNotInjectedOnXmlHttpRequests()
     {
         $response = new Response('<html><head></head><body></body></html>');
-        $response->headers->set('X-Debug-Token', 'xxxxxxxx');
 
         $event = new FilterResponseEvent($this->getKernelMock(), $this->getRequestMock(true), HttpKernelInterface::MASTER_REQUEST, $response);
 
-        $listener = new AnalyticsTrackerListener($this->getTemplatingMock());
+        $listener = new AnalyticsTrackerListener($this->getTemplatingMock(), '');
         $listener->onCoreResponse($event);
 
         $this->assertEquals('<html><head></head><body></body></html>', $response->getContent());
@@ -140,11 +120,10 @@ class AnalyticsTrackerListenerTest extends \PHPUnit_Framework_TestCase
     public function testTrackerIsNotInjectedOnNonHtmlRequests()
     {
         $response = new Response('<html><head></head><body></body></html>');
-        $response->headers->set('X-Debug-Token', 'xxxxxxxx');
 
         $event = new FilterResponseEvent($this->getKernelMock(), $this->getRequestMock(false, 'json'), HttpKernelInterface::MASTER_REQUEST, $response);
 
-        $listener = new AnalyticsTrackerListener($this->getTemplatingMock());
+        $listener = new AnalyticsTrackerListener($this->getTemplatingMock(), '');
         $listener->onCoreResponse($event);
 
         $this->assertEquals('<html><head></head><body></body></html>', $response->getContent());

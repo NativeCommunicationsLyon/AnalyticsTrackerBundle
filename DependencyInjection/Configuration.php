@@ -8,7 +8,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Jirafe\Bundle\AnalyticsBundle\DependencyInjection;
+namespace Jirafe\Bundle\AnalyticsTrackerBundle\DependencyInjection;
 
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 
@@ -23,44 +23,33 @@ class Configuration
     /**
      * Generates the configuration tree.
      *
-     * @param Boolean $debug    Wether to use the debug mode
-     * @param array   $bundles  An array of bundle names
-     *
      * @return \Symfony\Component\Config\Definition\ArrayNode The config tree
      */
-    public function getConfigTree($debug, array $bundles)
+    public function getConfigTree()
     {
         $tree = new TreeBuilder();
+        $rootNode = $tree->root('jirafe_analytics_tracker');
 
-        $tree->root('jirafe_analytics_tracker')
+        $rootNode
             ->children()
-                ->arrayNode('trackers')
-                    ->requiresAtLeastOneElement()
-                    ->useAttributeAsKey('name')
-                    ->prototype('array')
-                        ->children()
-                        ->scalarNode('type')
-                            ->isRequired()
-                            ->cannotBeEmpty()
-                            ->validation()
-                                ->rule()
-                                    ->ifNotInArray(array('piwik', 'google_analytics', 'jirafe'))
-                                    ->thenInvalid('The \'type\' must be either \'piwik\', \'google_analytics\' or \'jirafe\'')
-                                ->end()
-                            ->end()
+            ->arrayNode('trackers')
+                ->requiresAtLeastOneElement()
+                ->useAttributeAsKey('name')
+                ->prototype('array')
+                    ->children()
+                        ->scalarNode('type')->end()
+                        ->scalarNode('class')->defaultNull()->end()
+                        ->scalarNode('template')->defaultNull()->end()
                         ->arrayNode('params')
-                            ->prototype('array')
+                            ->children()
                                 ->scalarNode('url')->end()
-                                ->scalarNode('token')->end()
                                 ->scalarNode('site_id')->end()
                                 ->scalarNode('account')->end()
                             ->end()
                         ->end()
-                        ->scalarNode('class')->end()
-                        ->scalarNode('template')->end()
                     ->end()
                 ->end()
-            ->end();
+            ->end()
         ;
 
         return $tree->buildTree();
