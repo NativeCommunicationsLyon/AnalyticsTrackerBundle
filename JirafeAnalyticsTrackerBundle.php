@@ -10,7 +10,7 @@
 
 namespace Jirafe\Bundle\AnalyticsTrackerBundle;
 
-use Symfony\Component\HttpKernel\Bundle\Bundle
+use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 class JirafeAnalyticsTrackerBundle extends Bundle
 {
