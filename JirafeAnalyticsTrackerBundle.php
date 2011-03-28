@@ -8,10 +8,10 @@
  * file that was distributed with this source code.
  */
 
-namespace Jirafe\Bundle\PiwikBundle;
+namespace Jirafe\Bundle\AnalyticsTrackerBundle;
 
 use Symfony\Component\HttpKernel\Bundle\Bundle
 
-class JirafePiwikBundle extends Bundle
+class JirafeAnalyticsTrackerBundle extends Bundle
 {
 }
