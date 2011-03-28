@@ -8,7 +8,7 @@
         <parameter key="jirafe.analytics_tracker.class">Jirafe\Bundle\AnalyticsTrackerBundle\AnalyticsTrackerListener</parameter>
         <parameter key="jirafe.analytics_tracker.piwik.template">JirafeAnalyticsTrackerBundle:Tracker:piwik.html.twig</parameter>
         <parameter key="jirafe.analytics_tracker.google_analytics.template">JirafeAnalyticsTrackerBundle:Tracker:google_analytics.html.twig</parameter>
-        <parameter key="jirafe.analytics_tracker.jirafe.url">https://data.jirafe.com/index.php</parameter>
+        <parameter key="jirafe.analytics_tracker.jirafe.url">https://data.jirafe.com/</parameter>
     </parameters>
 
 </container>
