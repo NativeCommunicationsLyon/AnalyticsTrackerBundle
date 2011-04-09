@@ -8,7 +8,7 @@ Installation
 
 First, you need to add the bundle in your project:
 
-    $ git add submodule git://github.com/jirafe/AnalyticsTrackerBundle.git vendor/bundles/Jirafe/Bundle/AnalyticsTrackerBundle
+    $ git submodule add git://github.com/jirafe/AnalyticsTrackerBundle.git vendor/bundles/Jirafe/Bundle/AnalyticsTrackerBundle
 
 Then, add it to the autoloader:
 
@@ -17,7 +17,7 @@ Then, add it to the autoloader:
 
         // ... other namespaces
 
-        'Jirafe'                         => __DIR__ . '/../src',
+        'Jirafe'                         => __DIR__ . '/../vendor/bundles',
     ));
 
 Add the bundle to your kernel:
