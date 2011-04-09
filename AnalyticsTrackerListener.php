@@ -21,8 +21,8 @@ use Symfony\Bundle\TwigBundle\TwigEngine;
  *
  * The handle method must be connected to the onCoreResponse event.
  *
- * The WDT is only injected on well-formed HTML (with a proper </body> tag).
- * This means that the WDT is never included in sub-requests or ESI requests.
+ * The tracker is only injected on well-formed HTML (with a proper </body> tag).
+ * This means that the tracker is never included in sub-requests or ESI requests.
  */
 class AnalyticsTrackerListener
 {
