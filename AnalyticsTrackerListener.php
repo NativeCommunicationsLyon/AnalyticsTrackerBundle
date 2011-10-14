@@ -19,7 +19,7 @@ use Symfony\Bundle\TwigBundle\TwigEngine;
 /**
  * Listener an analytics tracker to the response
  *
- * The handle method must be connected to the onCoreResponse event.
+ * The onKernelResponse method must be connected to the kernel.response event.
  *
  * The tracker is only injected on well-formed HTML (with a proper </body> tag).
  * This means that the tracker is never included in sub-requests or ESI requests.
@@ -76,11 +76,11 @@ class AnalyticsTrackerListener
     }
 
     /**
-     * Listen to the onCoreResponse event
+     * Listen to the kernel.response event
      *
      * @param  FilterResponseEvent A FilterResponseEvent instance
      */
-    public function onCoreResponse(FilterResponseEvent $event)
+    public function onKernelResponse(FilterResponseEvent $event)
     {
         if (HttpKernelInterface::MASTER_REQUEST !== $event->getRequestType()) {
             return;

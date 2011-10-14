@@ -120,8 +120,9 @@ class JirafeAnalyticsTrackerExtension extends Extension
 
         $templating = new Reference('templating.engine.twig');
         $definition = new Definition($class, array($templating, $template, $params));
-        $definition->addTag('kernel.listener', array(
-            'event' => 'onCoreResponse'
+        $definition->addTag('kernel.event_listener', array(
+            'event' => 'kernel.response',
+            'method' => 'onKernelResponse'
         ));
 
         $container->setDefinition(
