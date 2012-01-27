@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the JirafePiwikBundle.
+ * This file is part of the AnalyticsTrackerBundle.
  * (c) 2011 Jirafe <http://www.jirafe.com>
  *
  * For the full copyright and license information, please view the LICENSE

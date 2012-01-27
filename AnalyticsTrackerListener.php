@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the JirafePiwikBundle.
+ * This file is part of the AnalyticsTrackerBundle.
  *
  * (c) 2011 Jirafe <http://www.jirafe.com>
  *
@@ -101,7 +101,7 @@ class AnalyticsTrackerListener
     }
 
     /**
-     * Injects the Piwik tracker into the given Response
+     * Injects the Analytics tracker into the given Response
      *
      * @param Response $response A Response instance
      */

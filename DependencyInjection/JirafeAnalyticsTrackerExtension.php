@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the JirafePiwikBundle.
+ * This file is part of the AnalyticsTrackerBundle.
  * (c) 2011 Jirafe <http://www.jirafe.com>
  *
  * For the full copyright and license information, please view the LICENSE
@@ -42,6 +42,15 @@ class JirafeAnalyticsTrackerExtension extends Extension
     public function loadTracker($name, array $tracker, ContainerBuilder $container)
     {
         switch ($tracker['type']) {
+            case 'jirafe':
+                $this->loadJirafeTracker(
+                    $name,
+                    $tracker['class'],
+                    $tracker['template'],
+                    $tracker['params'],
+                    $container
+                );
+                break;
             case 'piwik':
                 $this->loadPiwikTracker(
                     $name,
@@ -53,15 +62,6 @@ class JirafeAnalyticsTrackerExtension extends Extension
                 break;
             case 'google_analytics':
                 $this->loadGoogleAnalyticsTracker(
-                    $name,
-                    $tracker['class'],
-                    $tracker['template'],
-                    $tracker['params'],
-                    $container
-                );
-                break;
-            case 'jirafe':
-                $this->loadJirafeTracker(
                     $name,
                     $tracker['class'],
                     $tracker['template'],
@@ -100,9 +100,12 @@ class JirafeAnalyticsTrackerExtension extends Extension
 
     public function loadJirafeTracker($name, $class, $template, array $params, ContainerBuilder $container)
     {
-        $params['url'] = $container->getParameter('jirafe.analytics_tracker.jirafe.url');
+        $this->ensureParameters($name, array('site_id'), $params);
 
-        $this->loadPiwikTracker($name, $class, $template, $params, $container);
+        $class = $class ? : $container->getParameter('jirafe.analytics_tracker.class');
+        $template = $template ? : $container->getParameter('jirafe.analytics_tracker.jirafe.template');
+
+        $this->addTrackerDefinition($name, $class, $template, $params, $container);
     }
 
     /**
