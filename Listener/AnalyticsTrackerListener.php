@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Jirafe\Bundle\AnalyticsTrackerBundle;
+namespace Jirafe\Bundle\AnalyticsTrackerBundle\Listener;
 
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
