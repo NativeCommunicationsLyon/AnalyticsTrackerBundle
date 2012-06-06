@@ -32,6 +32,9 @@ class Configuration
 
         $rootNode
             ->children()
+            ->arrayNode('environments')
+                ->prototype('scalar')->end()
+            ->end()
             ->arrayNode('trackers')
                 ->requiresAtLeastOneElement()
                 ->useAttributeAsKey('name')
@@ -46,6 +49,11 @@ class Configuration
                                 ->scalarNode('site_id')->end()
                                 ->scalarNode('account')->end()
                             ->end()
+                        ->end()
+                        ->arrayNode('environments')
+                            ->addDefaultsIfNotSet()
+                            ->defaultValue(array())
+                            ->prototype('scalar')->end()
                         ->end()
                     ->end()
                 ->end()
