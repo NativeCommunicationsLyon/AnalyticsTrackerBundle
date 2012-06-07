@@ -48,7 +48,7 @@ class AnalyticsTrackerListenerTest extends \PHPUnit_Framework_TestCase
         $event = new FilterResponseEvent($this->getKernelMock(), $this->getRequestMock(), HttpKernelInterface::MASTER_REQUEST, $response);
 
         $listener = new AnalyticsTrackerListener($this->getTemplatingMock(), '');
-        $listener->onCoreResponse($event);
+        $listener->onKernelResponse($event);
 
         $this->assertEquals("<html><head></head><body>\nTRACKER\n</body></html>", $response->getContent());
     }
@@ -63,7 +63,7 @@ class AnalyticsTrackerListenerTest extends \PHPUnit_Framework_TestCase
             $event = new FilterResponseEvent($this->getKernelMock(), $this->getRequestMock(), HttpKernelInterface::MASTER_REQUEST, $response);
 
             $listener = new AnalyticsTrackerListener($this->getTemplatingMock(), '');
-            $listener->onCoreResponse($event);
+            $listener->onKernelResponse($event);
 
             $this->assertEquals('<html><head></head><body></body></html>', $response->getContent());
         }
@@ -79,7 +79,7 @@ class AnalyticsTrackerListenerTest extends \PHPUnit_Framework_TestCase
         $event = new FilterResponseEvent($this->getKernelMock(), $this->getRequestMock(), HttpKernelInterface::SUB_REQUEST, $response);
 
         $listener = new AnalyticsTrackerListener($this->getTemplatingMock(), '');
-        $listener->onCoreResponse($event);
+        $listener->onKernelResponse($event);
 
         $this->assertEquals('<html><head></head><body></body></html>', $response->getContent());
     }
@@ -94,7 +94,7 @@ class AnalyticsTrackerListenerTest extends \PHPUnit_Framework_TestCase
         $event = new FilterResponseEvent($this->getKernelMock(), $this->getRequestMock(), HttpKernelInterface::MASTER_REQUEST, $response);
 
         $listener = new AnalyticsTrackerListener($this->getTemplatingMock(), '');
-        $listener->onCoreResponse($event);
+        $listener->onKernelResponse($event);
 
         $this->assertEquals('<div>Some content</div>', $response->getContent());
     }
@@ -109,7 +109,7 @@ class AnalyticsTrackerListenerTest extends \PHPUnit_Framework_TestCase
         $event = new FilterResponseEvent($this->getKernelMock(), $this->getRequestMock(true), HttpKernelInterface::MASTER_REQUEST, $response);
 
         $listener = new AnalyticsTrackerListener($this->getTemplatingMock(), '');
-        $listener->onCoreResponse($event);
+        $listener->onKernelResponse($event);
 
         $this->assertEquals('<html><head></head><body></body></html>', $response->getContent());
     }
@@ -124,7 +124,7 @@ class AnalyticsTrackerListenerTest extends \PHPUnit_Framework_TestCase
         $event = new FilterResponseEvent($this->getKernelMock(), $this->getRequestMock(false, 'json'), HttpKernelInterface::MASTER_REQUEST, $response);
 
         $listener = new AnalyticsTrackerListener($this->getTemplatingMock(), '');
-        $listener->onCoreResponse($event);
+        $listener->onKernelResponse($event);
 
         $this->assertEquals('<html><head></head><body></body></html>', $response->getContent());
     }
