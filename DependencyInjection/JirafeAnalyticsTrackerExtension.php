@@ -41,37 +41,19 @@ class JirafeAnalyticsTrackerExtension extends Extension
 
     public function loadTracker($name, array $tracker, ContainerBuilder $container)
     {
-        switch ($tracker['type']) {
-            case 'jirafe':
-                $this->loadJirafeTracker(
-                    $name,
-                    $tracker['class'],
-                    $tracker['template'],
-                    $tracker['params'],
-                    $container
-                );
-                break;
-            case 'piwik':
-                $this->loadPiwikTracker(
-                    $name,
-                    $tracker['class'],
-                    $tracker['template'],
-                    $tracker['params'],
-                    $container
-                );
-                break;
-            case 'google_analytics':
-                $this->loadGoogleAnalyticsTracker(
-                    $name,
-                    $tracker['class'],
-                    $tracker['template'],
-                    $tracker['params'],
-                    $container
-                );
-                break;
-            default:
-                throw new \InvalidArgumentException(sprintf('The \'%s\' tracker type is not supported.', $tracker['type']));
+        $methodName = sprintf('load%sTracker', $container->camelize($tracker['type']));
+        if(! method_exists($this, $methodName))
+        {
+            throw new \InvalidArgumentException(sprintf('The \'%s\' tracker type is not supported.', $tracker['type']));
         }
+
+        $this->$methodName(
+            $name,
+            $tracker['class'],
+            $tracker['template'],
+            $tracker['params'],
+            $container
+        );
     }
 
     public function loadPiwikTracker($name, $class, $template, array $params, ContainerBuilder $container)
@@ -98,6 +80,16 @@ class JirafeAnalyticsTrackerExtension extends Extension
         $this->addTrackerDefinition($name, $class, $template, $params, $container);
     }
 
+    public function loadClickyTracker($name, $class, $template, array $params, ContainerBuilder $container)
+    {
+        $this->ensureParameters($name, array('site_id'), $params);
+
+        $class = $class ? : $container->getParameter('jirafe.analytics_tracker.class');
+        $template = $template ? : $container->getParameter('jirafe.analytics_tracker.clicky.template');
+
+        $this->addTrackerDefinition($name, $class, $template, $params, $container);
+    }
+    
     public function loadJirafeTracker($name, $class, $template, array $params, ContainerBuilder $container)
     {
         $this->ensureParameters($name, array('site_id'), $params);
