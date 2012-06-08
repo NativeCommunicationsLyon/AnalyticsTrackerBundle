@@ -33,13 +33,13 @@ class JirafeAnalyticsTrackerExtension extends Extension
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('analytics_tracker.xml');
-
+        
         foreach ($config['trackers'] as $name => $tracker) {
-            $this->loadTracker($name, $tracker, $container);
+            $this->loadTracker($name, $tracker, $container, $config['environments']);
         }
     }
 
-    public function loadTracker($name, array $tracker, ContainerBuilder $container)
+    public function loadTracker($name, array $tracker, ContainerBuilder $container, array $environments)
     {
         $methodName = sprintf('load%sTracker', $container->camelize($tracker['type']));
         if(! method_exists($this, $methodName))
@@ -50,13 +50,14 @@ class JirafeAnalyticsTrackerExtension extends Extension
         $this->$methodName(
             $name,
             $tracker['class'],
+            array_merge($tracker['environments'], $environments),
             $tracker['template'],
             $tracker['params'],
             $container
         );
     }
 
-    public function loadPiwikTracker($name, $class, $template, array $params, ContainerBuilder $container)
+    public function loadPiwikTracker($name, $class, array $environments, $template, array $params, ContainerBuilder $container)
     {
         $this->ensureParameters($name, array('url', 'site_id'), $params);
 
@@ -67,20 +68,20 @@ class JirafeAnalyticsTrackerExtension extends Extension
         $class = $class ? : $container->getParameter('jirafe.analytics_tracker.class');
         $template = $template ? : $container->getParameter('jirafe.analytics_tracker.piwik.template');
 
-        $this->addTrackerDefinition($name, $class, $template, $params, $container);
+        $this->addTrackerDefinition($name, $class, $environments, $template, $params, $container);
     }
 
-    public function loadGoogleAnalyticsTracker($name, $class, $template, array $params, ContainerBuilder $container)
+    public function loadGoogleAnalyticsTracker($name, $class, array $environments, $template, array $params, ContainerBuilder $container)
     {
         $this->ensureParameters($name, array('account'), $params);
 
         $class = $class ? : $container->getParameter('jirafe.analytics_tracker.class');
         $template = $template ? : $container->getParameter('jirafe.analytics_tracker.google_analytics.template');
 
-        $this->addTrackerDefinition($name, $class, $template, $params, $container);
+        $this->addTrackerDefinition($name, $class, $environments, $template, $params, $container);
     }
 
-    public function loadClickyTracker($name, $class, $template, array $params, ContainerBuilder $container)
+    public function loadClickyTracker($name, $class, array $environments, $template, array $params, ContainerBuilder $container)
     {
         $this->ensureParameters($name, array('site_id'), $params);
 
@@ -90,27 +91,33 @@ class JirafeAnalyticsTrackerExtension extends Extension
         $this->addTrackerDefinition($name, $class, $template, $params, $container);
     }
     
-    public function loadJirafeTracker($name, $class, $template, array $params, ContainerBuilder $container)
+    public function loadJirafeTracker($name, $class, array $environments, $template, array $params, ContainerBuilder $container)
     {
         $this->ensureParameters($name, array('site_id'), $params);
 
         $class = $class ? : $container->getParameter('jirafe.analytics_tracker.class');
         $template = $template ? : $container->getParameter('jirafe.analytics_tracker.jirafe.template');
 
-        $this->addTrackerDefinition($name, $class, $template, $params, $container);
+        $this->addTrackerDefinition($name, $class, $environments, $template, $params, $container);
     }
 
     /**
      * Adds a tracker definition to the given container builder
      *
-     * @param  string           $name      The name of the tracker
-     * @param  string           $class     The listener class
-     * @param  string           $template  The template of the tracker
-     * @param  array            $params    The parameters for the template
-     * @param  ContainerBuilder $container A ContainerBuilder instance
+     * @param  string           $name         The name of the tracker
+     * @param  string           $class        The listener class
+     * @param  array            $environments The environments where the tracker is activated
+     * @param  string           $template     The template of the tracker
+     * @param  array            $params       The parameters for the template
+     * @param  ContainerBuilder $container    A ContainerBuilder instance
      */
-    protected function addTrackerDefinition($name, $class, $template, $params, ContainerBuilder $container)
+    protected function addTrackerDefinition($name, $class, array $environments, $template, $params, ContainerBuilder $container)
     {
+        if(!in_array($container->getParameter('kernel.environment') , $environments))
+        {
+            return;
+        }
+        
         $params['name'] = $name;
 
         $templating = new Reference('templating.engine.twig');

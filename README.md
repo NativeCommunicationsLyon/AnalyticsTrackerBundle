@@ -36,11 +36,13 @@ Finally, configure it:
     # app/config/config.yml
     # Analytics Tracker Configuration
     jirafe_analytics_tracker:
+        environments: [prod, whatever_env_you_have, ...] # optional parameter, set globaly the environments where the trackers are enabled
         trackers:
             tracker_a:
                 type:       jirafe
                 params:
                     site_id:    123                     # id of the site to track
+                environments: [dev, whatever_env_you_have, ...] # optional parameter, set locally (for this tracker only) the environments where the tracker is enabled
             tracker_b:
                 type:       piwik
                 params:
