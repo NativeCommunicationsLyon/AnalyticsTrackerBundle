@@ -88,7 +88,7 @@ class JirafeAnalyticsTrackerExtension extends Extension
         $class = $class ? : $container->getParameter('jirafe.analytics_tracker.class');
         $template = $template ? : $container->getParameter('jirafe.analytics_tracker.clicky.template');
 
-        $this->addTrackerDefinition($name, $class, $template, $params, $container);
+        $this->addTrackerDefinition($name, $class, $environments, $template, $params, $container);
     }
     
     public function loadJirafeTracker($name, $class, array $environments, $template, array $params, ContainerBuilder $container)
