@@ -51,7 +51,6 @@ class Configuration
                             ->end()
                         ->end()
                         ->arrayNode('environments')
-                            ->addDefaultsIfNotSet()
                             ->defaultValue(array())
                             ->prototype('scalar')->end()
                         ->end()
